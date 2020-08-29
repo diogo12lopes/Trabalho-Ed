@@ -32,9 +32,41 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     private String GameMode;
     private int Difficulty;
     private Player player;
+    private Room currentRoom;
+    private DirectedNetworkWithMatrix<Room> tmp;
 
     public CasaAssombrada() {
         Maps = new ArrayUnorderedList<>();
+    }
+
+    public boolean checkTeletransporte()
+    {
+        if(player.hasTeletransporte())
+        {
+            ArrayUnorderedList<Room> roomsWithoutFantasmas = getRoomsWithoutGhosts();
+            currentRoom = getRandomRoomFromArray(roomsWithoutFantasmas);
+        }
+    }
+
+    private Room getRandomRoomFromArray(ArrayUnorderedList<Room> rooms)
+    {
+        int chosenRoomIndex = (int) (Math.random() * rooms.size());
+        Iterator roomsIterator = rooms.iterator();
+        for(int k = 0; k < chosenRoomIndex ; k++)
+            roomsIterator.next();
+        return (Room) roomsIterator.next();
+    }
+
+    private ArrayUnorderedList<Room> getRoomsWithoutGhosts()
+    {
+        ArrayUnorderedList<Room> roomsWithoutFantasmas = new ArrayUnorderedList<>();
+        for(Object vertice : tmp.getVertices())
+        {
+            Room currVerticeRoom = (Room) vertice;
+            if(currVerticeRoom.getTotalDamage() == 0)
+                roomsWithoutFantasmas.addToRear(currVerticeRoom);
+        }
+        return roomsWithoutFantasmas;
     }
 
     @Override
@@ -43,23 +75,30 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         player.setLifePoints(SelectedMap.getInitialLifePoints());
         if (GameMode.equals("manual")) {
 
-            Room CurrentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhost());
+            //TODO undo
 
-            DirectedNetworkWithMatrix<Room> tmp = SelectedMap.getGraph();
 
-            //TODO: power up
-            getRandomPowerUp();
+            currentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhosts());
 
-            while (!(CurrentRoom.getName().equals("exterior")) && player.getLifePoints() > 0) {
+            tmp = SelectedMap.getGraph();
 
-                System.out.println("Current Room:" + CurrentRoom.getName() + "\n");
+            //TODO: por power up no mapa
+            putRandomPowerUpOnRoom();
+
+            while (!(currentRoom.getName().equals("exterior")) && player.getLifePoints() > 0)
+            {
+                //TODO ver se atingiu powerup
+                if(currentRoom.getRewardItem() != RewardItem.None)
+                    setPlayerPowerUp(currentRoom.getRewardItem());
+
+                System.out.println("Current Room:" + currentRoom.getName() + "\n");
 
                 VisualizeMap(); //TODO: mostrar fantasmas
 
                 System.out.println("Current life points: "+ player.getLifePoints());
                 System.out.println("Wich room to go:\n");
 
-                int[] AdjacentRooms = tmp.GetIndexOfAdjVertices(CurrentRoom);
+                int[] AdjacentRooms = tmp.GetIndexOfAdjVertices(currentRoom);
 
                 Object[] Vertices = tmp.getVertices();
 
@@ -75,10 +114,30 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 String n = reader.readLine();
 
                 //TODO: try catch para o parse int
-                CurrentRoom = ((Room) Vertices[AdjacentRooms[Integer.parseInt(n) - 1]]);
+                currentRoom = ((Room) Vertices[AdjacentRooms[Integer.parseInt(n) - 1]]);
 
                 //TODO: lógica de verficar se perde pontos
-                player.setLifePoints(player.getLifePoints() - ((Room) tmp.getVertices()[Integer.parseInt(n)]).getGhost());
+                long totalInflictedDamage = ((Room) tmp.getVertices()[Integer.parseInt(n)]).getTotalDamage();
+                if(totalInflictedDamage > 0)
+                {
+                    if(checkTeletransporte())
+                    {
+                        player.setTeletransporte(false);
+                        totalInflictedDamage = 0;
+                    }
+                    if(player.getEscudo() > 0)
+                    {
+                        long baseTotalInflictedDamage = totalInflictedDamage;
+                        totalInflictedDamage -= player.getEscudo();
+                        if(totalInflictedDamage < 0)
+                            totalInflictedDamage = 0;
+                        player.setEscudo(player.getEscudo() - baseTotalInflictedDamage);
+                        if(player.getEscudo() < 0)
+                            player.setEscudo(0);
+                    }
+
+                    player.setLifePoints(player.getLifePoints() - totalInflictedDamage);
+                }
 
                 //TODO: lógica de mover fantasmas
                 for(Object roomObject : Vertices)
@@ -89,7 +148,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                         continue;
 
                     ArrayUnorderedList<Room> verticesThatComplyWithConditions = new ArrayUnorderedList<>();
-                    int playerCurrentVerticeIndex = tmp.getIndex(CurrentRoom);
+                    int playerCurrentVerticeIndex = tmp.getIndex(currentRoom);
                     int[] adjacentVertices = tmp.GetIndexOfAdjVertices(room);
                     for(int j = 0; j < adjacentVertices.length; j++)
                     {
@@ -126,13 +185,13 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                             verticesThatComplyWithConditionsIterator.remove();
                         }
                     }
-
                 }
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-            if (player.getLifePoints() > 0) {
+            if (player.getLifePoints() > 0)
+            {
                 System.out.println("You just won the game!\nPlease gives you nickname:");
 
                 String n = reader.readLine();
@@ -146,7 +205,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
             } else {
                 System.out.println("You just lost the game!");
             }
-        } else if (GameMode == "simulation") {
+        } else if (GameMode.equals("simulation")) {
             Iterator it;
 
             Room Exit = new Room("exterior", 0);
@@ -164,23 +223,42 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         }
     }
 
-    private void getRandomPowerUp()
+    private void putRandomPowerUpOnRoom()
     {
+        ArrayUnorderedList<Room> roomsWithoutFantasmas = getRoomsWithoutGhosts();
+        Room randomRoomChosen = getRandomRoomFromArray(roomsWithoutFantasmas);
         int randomNumberForPowerUpType = (int) ((Math.random() * 3) + 1);
         switch (randomNumberForPowerUpType)
         {
             case 1:
-                player.setLifePoints(player.getLifePoints() + 25);
+                randomRoomChosen.setRewardItem(RewardItem.LifePoints);
                 break;
             case 2:
+                randomRoomChosen.setRewardItem(RewardItem.Escudo);
+                break;
+            case 3:
+                randomRoomChosen.setRewardItem(RewardItem.Teletransporte);
+                break;
+        }
+    }
+
+    private void setPlayerPowerUp(RewardItem rewardItem)
+    {
+        switch (rewardItem)
+        {
+            case LifePoints:
+                player.setLifePoints(player.getLifePoints() + 25);
+                break;
+            case Escudo:
                 int randomNumberForShield = (int) ((Math.random() * getSelectedMap().getBiggestGhost()) + 1);
                 player.setEscudo(randomNumberForShield);
                 break;
-            case 3:
+            case Teletransporte:
                 player.setTeletransporte(true);
                 break;
         }
     }
+
 
     @Override
     public boolean CheckMap(Map mapa) throws EmptyCollectionException {

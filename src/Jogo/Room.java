@@ -19,13 +19,11 @@ public class Room implements Comparable {
 
     private String name;
     private ArrayUnorderedList<Fantasma> ghosts;
+    private RewardItem rewardItem = RewardItem.None;
 
-    public Room(String name, long Ghost) {
+    public Room(String name, ArrayUnorderedList<Fantasma> ghosts) {
         this.name = name;
-    }
-
-    public Room() {
-
+        this.ghosts = ghosts;
     }
 
     public String getName() {
@@ -44,6 +42,17 @@ public class Room implements Comparable {
 
         return totalDamage;
     }
+
+    public RewardItem getRewardItem()
+    {
+        return rewardItem;
+    }
+
+    public void setRewardItem(RewardItem rewardItem)
+    {
+        this.rewardItem = rewardItem;
+    }
+
 
     public ArrayUnorderedList<Fantasma> getGhosts()
     {
@@ -78,3 +87,4 @@ public class Room implements Comparable {
         this.ghosts.remove(fantasma);
     }
 }
+
