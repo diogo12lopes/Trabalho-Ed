@@ -35,8 +35,10 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     private Room currentRoom;
     private DirectedNetworkWithMatrix<Room> tmp;
 
-    public CasaAssombrada() {
+    public CasaAssombrada()
+    {
         Maps = new ArrayUnorderedList<>();
+        player = new Player("", 0);
     }
 
     public boolean checkTeletransporte()
@@ -44,8 +46,13 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         if(player.hasTeletransporte())
         {
             ArrayUnorderedList<Room> roomsWithoutFantasmas = getRoomsWithoutGhosts();
+            if(roomsWithoutFantasmas.size() == 0)
+                return false;
             currentRoom = getRandomRoomFromArray(roomsWithoutFantasmas);
+            return true;
         }
+
+        return false;
     }
 
     private Room getRandomRoomFromArray(ArrayUnorderedList<Room> rooms)
@@ -60,12 +67,13 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     private ArrayUnorderedList<Room> getRoomsWithoutGhosts()
     {
         ArrayUnorderedList<Room> roomsWithoutFantasmas = new ArrayUnorderedList<>();
-        for(Object vertice : tmp.getVertices())
+        for (int i = 0; i < tmp.size(); i++)
         {
-            Room currVerticeRoom = (Room) vertice;
+            Room currVerticeRoom = (Room) tmp.getVertices()[i];
             if(currVerticeRoom.getTotalDamage() == 0)
                 roomsWithoutFantasmas.addToRear(currVerticeRoom);
         }
+
         return roomsWithoutFantasmas;
     }
 
@@ -208,7 +216,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         } else if (GameMode.equals("simulation")) {
             Iterator it;
 
-            Room Exit = new Room("exterior", 0);
+            Room Exit = new Room("exterior", new ArrayUnorderedList<>());
 
             it = SelectedMap.getGraph().iteratorShortestPathWeight(SelectedMap.getMapStartingLocation(), Exit);
 
@@ -262,18 +270,31 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
     @Override
     public boolean CheckMap(Map mapa) throws EmptyCollectionException {
-        boolean a = true;
         long LifePoints = mapa.getInitialLifePoints();
-        Room Exit = new Room("exterior", 0);
-        Iterator it;
-        it = mapa.getGraph().iteratorShortestPathWeight(mapa.getMapStartingLocation(), Exit);
-        while (it.hasNext()) {
-            LifePoints -= getDifficulty() * ((Room) it.next()).getGhost();
+        Room Exit;
+
+        if(mapa.getMapStartingLocation() == null)
+            return false;
+
+        for(Object vertice : tmp.getVertices())
+        {
+            Room currVerticeRoom = (Room) vertice;
+
+            if(currVerticeRoom.getName().equals("exterior") == false)
+                continue;
+
+            Exit = currVerticeRoom;
+            Iterator it = mapa.getGraph().iteratorShortestPathWeight(mapa.getMapStartingLocation(), Exit);
+                while (it.hasNext()) {
+                LifePoints -= ((Room) it.next()).getTotalDamage();
+            }
+            if (LifePoints < 0) {
+                return false;
+            }
+            return true;
         }
-        if (LifePoints < 0) {
-            a = false;
-        }
-        return a;
+
+        return false;
     }
 
     @Override
@@ -283,7 +304,10 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
     @Override
     public void Select_Map(int MapChoice) {
-        this.SelectedMap = Maps[MapChoice];
+        Iterator iterator = Maps.iterator();
+        for (int i = 0; i < MapChoice; i++)
+            iterator.next();
+        this.SelectedMap = (Map) iterator.next();
     }
 
     @Override
@@ -292,16 +316,12 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     }
 
     @Override
-    public void CheckLeaderboard(String Map) {
+    public void CheckLeaderboard(Map map) {
+
+        Iterator it = map.getMapLeaderboard().iterator();
         int i = 0;
-
-        while (!Maps[i].getName().equals(Map)) {
-            i++;
-        }
-
-        Iterator it = Maps[i].getMapLeaderboard().iterator();
-
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             System.out.println(i + 1 + "º Lugar:\n" + it.next().toString());
             i++;
         }
@@ -314,9 +334,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
             System.out.println(SelectedMap.getGraph().toString());
         } else {
             String tmp = SelectedMap.getGraph().toString();
-            String[] Arraytmp;
-            Arraytmp = tmp.split("Weights of Edges");
-            System.out.println(Arraytmp[0]);
+            System.out.println(tmp);
         }
     }
 
@@ -342,13 +360,14 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             JSONArray jsonArray = (JSONArray) obj.get("mapa");
 
-            DirectedNetworkWithMatrix tmp = newMap.getGraph();
+            tmp = newMap.getGraph();
 
             Room[] ArrayOfRooms = new Room[jsonArray.size()];
 
             while (i < jsonArray.size()) {
 
-                Room Place = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), (long) ((JSONObject) jsonArray.get(i)).get("fantasma"));
+                ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
+                Room Place = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
 
                 ArrayOfRooms[i] = Place;
 
@@ -357,8 +376,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 i++;
             }
 
-            Room Exit = new Room("exterior", 0);
-
+            Room Exit = new Room("exterior", new ArrayUnorderedList<>());
             tmp.addVertex(Exit);
 
             i = 0;
@@ -372,25 +390,30 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
                 while (o < jsonArray2.size()) {
                     if ("entrada".equals((String) jsonArray2.get(o))) {
-                        Room StartLocation = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), (long) ((JSONObject) jsonArray.get(i)).get("fantasma"));
+                        ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
+                        if(ghosts.size() != 0) // can not exist ghosts on entrance
+                            continue;
+                        Room StartLocation = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
                         newMap.setMapStartingLocation(StartLocation);
                         if ((long) ((JSONObject) jsonArray.get(i)).get("fantasma") > biggestGhost) {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
                     } else if ("exterior".equals((String) jsonArray2.get(o))) {
-                        Room tmpRoom = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), (long) ((JSONObject) jsonArray.get(i)).get("fantasma"));
+                        ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
+                        Room tmpRoom = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
                         tmp.addEdge(tmpRoom, Exit, 0);
                         if ((long) ((JSONObject) jsonArray.get(i)).get("fantasma") > biggestGhost) {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
                     } else {
-                        Room tmpRoom = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), (long) ((JSONObject) jsonArray.get(i)).get("fantasma"));
+                        ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
+                        Room tmpRoom = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
                         if ((long) ((JSONObject) jsonArray.get(i)).get("fantasma") > biggestGhost) {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
                         for (int k = 0; k < ArrayOfRooms.length; k++) {
                             if (ArrayOfRooms[k].getName().equals((String) jsonArray2.get(o))) {
-                                tmp.addEdge(tmpRoom, ArrayOfRooms[k], ArrayOfRooms[k].getGhost());
+                                tmp.addEdge(tmpRoom, ArrayOfRooms[k], ArrayOfRooms[k].getTotalDamage());
                                 break;
                             }
                         }
@@ -406,42 +429,42 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
     }
 
+    private ArrayUnorderedList<Fantasma> createGhostObjectFromGhostDamageJsonObject(int i, JSONArray jsonArray)
+    {
+        long ghostDamage = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
+        ArrayUnorderedList<Fantasma> ghosts = new ArrayUnorderedList<>();
+        if(ghostDamage != 0)
+            ghosts.addToRear(new Fantasma(ghostDamage));
+
+        return ghosts;
+    }
+
     @Override
-    public String[] getAllMapsName() {
+    public ArrayUnorderedList<String> getAllMapsName() {
 
-        String[] tmpMaps = new String[MapCounter];
+        ArrayUnorderedList<String> tmpMaps = new ArrayUnorderedList<String>();
 
-        for (int i = 0; i < MapCounter; i++) {
-            tmpMaps[i] = getMaps()[i].getName();
-        }
+        Iterator mapsIterator = Maps.iterator();
+        while(mapsIterator.hasNext())
+            tmpMaps.addToRear(((Map)mapsIterator.next()).getName());
 
         return tmpMaps;
     }
 
     @Override
-    public void deleteLastMap() {
-        Maps[MapCounter] = null;
-        MapCounter--;
+    public void deleteLastMap() throws EmptyCollectionException
+    {
+        Maps.removeLast();
     }
 
     @Override
-    public Map[] getMaps() {
+    public ArrayUnorderedList<Map> getMaps() {
         return Maps;
     }
 
     @Override
-    public void setMaps(Map[] Maps) {
+    public void setMaps(ArrayUnorderedList Maps) {
         this.Maps = Maps;
-    }
-
-    @Override
-    public int getMapCounter() {
-        return MapCounter;
-    }
-
-    @Override
-    public void setMapCounter(int MapCounter) {
-        this.MapCounter = MapCounter;
     }
 
     @Override

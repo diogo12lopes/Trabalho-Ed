@@ -9,6 +9,9 @@ import Exceptions.EmptyCollectionException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
+
+import UnorederedList.ArrayUnorderedList;
 import org.json.simple.parser.ParseException;
 
 /**
@@ -64,22 +67,23 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.length + 1) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -107,13 +111,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -131,22 +135,23 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.length + 1) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -174,13 +179,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -198,22 +203,23 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.length + 1) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -241,13 +247,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -278,22 +284,24 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) < tmpMaps.length + 1) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) < tmpMaps.size() + 1) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -321,13 +329,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -345,22 +353,23 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.length) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size()) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -388,13 +397,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -412,22 +421,23 @@ public class Main {
 
                                     switch (Integer.parseInt(n)) {
                                         case 1:
-                                            if (Jogo.getMapCounter() == 0) {
+                                            if (Jogo.getMaps().size() == 0) {
                                                 throw new Exception("error");
                                             }
-                                            String[] tmpMaps;
+                                            ArrayUnorderedList<String> tmpMaps;
 
                                             tmpMaps = Jogo.getAllMapsName();
 
                                             System.out.println("Choose a map:");
 
-                                            for (int i = 0; i < tmpMaps.length; i++) {
-                                                System.out.println((i + 1) + "." + tmpMaps[i]);
-                                            }
+                                            Iterator mapsIterator = tmpMaps.iterator();
+                                            int i = 0;
+                                            while(mapsIterator.hasNext())
+                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                                             n = reader.readLine();
 
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.length) {
+                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size()) {
                                                 System.out.println("Choose a existent map");
                                                 break;
                                             } else {
@@ -455,13 +465,13 @@ public class Main {
                                             n = reader.readLine();
 
                                             Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps()[Jogo.getMapCounter() - 1]) == false) {
+                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
                                                 System.out.println("Impossible map");
                                                 Jogo.deleteLastMap();
                                             } else {
 
                                                 Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMapCounter() - 1);
+                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
                                                 Jogo.play();
                                             }
                                             break;
@@ -482,22 +492,26 @@ public class Main {
                     break;
 
                 case 2:
-                    if (Jogo.getMapCounter() == 0) {
+                    if (Jogo.getMaps().size() == 0) {
                         throw new Exception("error");
                     }
-                    String[] tmpMaps;
+                    ArrayUnorderedList<String> tmpMaps;
 
                     tmpMaps = Jogo.getAllMapsName();
 
                     System.out.println("Choose a map from wich you want to check the leaderboard.");
 
-                    for (int i = 0; i < tmpMaps.length; i++) {
-                        System.out.println((i + 1) + "." + tmpMaps[i]);
-                    }
+                    Iterator mapsIterator = tmpMaps.iterator();
+                    int i = 0;
+                    while(mapsIterator.hasNext())
+                        System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
 
                     n = reader.readLine();
 
-                    Jogo.CheckLeaderboard(Jogo.getMaps()[Integer.parseInt(n) - 1].getName());
+                    mapsIterator = tmpMaps.iterator();
+                    for (int j = 0; j < Integer.parseInt(n) - 1; j++)
+                        mapsIterator.next();
+                    Jogo.CheckLeaderboard((Map) mapsIterator.next());
 
                     break;
                 case 3:

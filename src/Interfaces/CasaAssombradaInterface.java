@@ -9,6 +9,8 @@ import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Jogo.Map;
 import java.io.IOException;
+
+import UnorederedList.ArrayUnorderedList;
 import org.json.simple.parser.ParseException;
 
 /**
@@ -54,7 +56,7 @@ public interface CasaAssombradaInterface {
      *
      * @param Map Map chosen 
      */
-    public void CheckLeaderboard(String Map);
+    public void CheckLeaderboard(Map Map);
 
     /**
      *
@@ -84,37 +86,25 @@ public interface CasaAssombradaInterface {
      * Returns in a String array all maps names
      * @return in a String array all maps names
      */
-     public String[] getAllMapsName() ;
+     public ArrayUnorderedList<String> getAllMapsName() ;
      
      
      /**
       * Deletes the last map saved
       */
-     public void deleteLastMap();
+     public void deleteLastMap() throws EmptyCollectionException;
      
      
      /**
       * returns all maps available
       * @return returns all maps available
       */
-     public Map[] getMaps();
+     public ArrayUnorderedList<Map> getMaps();
      /**
       * set a preexisting 
       * @param Maps all maps wanted to set
       */
-     public void setMaps(Map[] Maps);
-     
-     /**
-      *  the number of maps existing
-      * @return  the number of maps existing
-      */
-      public int getMapCounter();
-     
-/**
- * set the number of maps existing
- * @param MapCounter the number of maps existing
- */
-    public void setMapCounter(int MapCounter);
+     public void setMaps(ArrayUnorderedList Maps);
    
    /**
     *returns  map selected by user

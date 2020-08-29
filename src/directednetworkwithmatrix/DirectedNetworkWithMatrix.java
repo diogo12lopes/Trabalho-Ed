@@ -374,7 +374,7 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
 
     @Override
     public String toString() {
-        if (numVertices == 0) {
+       if (numVertices == 0) {
             return "Graph is empty";
         }
 
@@ -446,21 +446,31 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
 
     public int[] GetIndexOfAdjVertices(T Vertex) {
 
-        int[] result = new int[numVertices];
+        int[] tempArray = new int[numVertices];
 
         for (int i = 0; i < numVertices; i++) {
-            result[i] = -1;
+            tempArray[i] = -1;
         }
 
         int k = 0;
 
         for (int i = 0; i < numVertices; i++) {
             if (adjMatrix[getIndex(Vertex)][i]) {
-                result[k] = i;
+                tempArray[k] = i;
                 k++;
             }
         }
-        return result;
+
+        int j = 0;
+        int[] resultArray = new int[k];
+        for (int i = 0; i < numVertices; i++) {
+            if (tempArray[k] != -1) {
+                resultArray[j] = tempArray[k];
+                j++;
+            }
+        }
+
+        return resultArray;
     }
 
     public Object[] getVertices() {
