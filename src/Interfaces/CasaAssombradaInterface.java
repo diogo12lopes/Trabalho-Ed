@@ -5,6 +5,7 @@
  */
 package Interfaces;
 
+import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Jogo.Map;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public interface CasaAssombradaInterface {
      * @throws org.json.simple.parser.ParseException Exception
      * @throws Exceptions.EmptyCollectionException Exception
      */
-    public void play()throws IOException, ParseException,EmptyCollectionException;
+    public void play() throws IOException, ParseException, EmptyCollectionException, ElementNotFoundException;
 
     /**
      *
@@ -149,8 +150,4 @@ public interface CasaAssombradaInterface {
       */
 
     public void setDifficulty(int Difficulty);
-/**
- * raises the capacity of the maps
- */
-    public void ExtendMapCapacity();
 }

@@ -17,8 +17,9 @@ public class Map {
     private String Name;
     private long InitialLifePoints;
     private Room MapStartingLocation;
-    private DoubleLinkedOrderedList<PlayerInformation> MapLeaderboard;
+    private DoubleLinkedOrderedList<Player> MapLeaderboard;
     private DirectedNetworkWithMatrix<Room> map;
+    private int BiggestGhost;
 
     public Map(String Name, long InitialLifePoints) {
         this.Name = Name;
@@ -47,7 +48,7 @@ public class Map {
         return InitialLifePoints;
     }
 
-    public DirectedNetworkWithMatrix<Room> getMap() {
+    public DirectedNetworkWithMatrix<Room> getGraph() {
         return map;
     }
 
@@ -59,7 +60,17 @@ public class Map {
         this.InitialLifePoints = InitialLifePoints;
     }
 
-    public void AddToTheLeaderboard(PlayerInformation Info) {
+    public void AddToTheLeaderboard(Player Info) {
         this.MapLeaderboard.add(Info);
+    }
+
+    public int getBiggestGhost()
+    {
+        return BiggestGhost;
+    }
+
+    public void setBiggestGhost(int biggestGhost)
+    {
+        BiggestGhost = biggestGhost;
     }
 }

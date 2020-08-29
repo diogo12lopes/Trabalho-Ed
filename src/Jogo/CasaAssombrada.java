@@ -5,14 +5,17 @@
  */
 package Jogo;
 
+import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Interfaces.CasaAssombradaInterface;
+import UnorederedList.ArrayUnorderedList;
 import directednetworkwithmatrix.DirectedNetworkWithMatrix;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -24,41 +27,41 @@ import org.json.simple.parser.ParseException;
  */
 public class CasaAssombrada implements CasaAssombradaInterface {
 
-    private Map[] Maps;
-    private int MapCounter;
-    private final int DEFAULT_CAPACITY = 10;
+    private ArrayUnorderedList<Map> Maps;
     private Map SelectedMap;
     private String GameMode;
     private int Difficulty;
+    private Player player;
 
     public CasaAssombrada() {
-        Maps = new Map[DEFAULT_CAPACITY];
-        this.MapCounter = 0;
+        Maps = new ArrayUnorderedList<>();
     }
 
     @Override
-    public void play() throws IOException, ParseException, EmptyCollectionException {
-        long LifePoints = SelectedMap.getInitialLifePoints();
-        if ("manual" == GameMode) {
+    public void play() throws IOException, ParseException, EmptyCollectionException, ElementNotFoundException
+    {
+        player.setLifePoints(SelectedMap.getInitialLifePoints());
+        if (GameMode.equals("manual")) {
 
             Room CurrentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhost());
 
-            DirectedNetworkWithMatrix<Room> tmp = SelectedMap.getMap();
+            DirectedNetworkWithMatrix<Room> tmp = SelectedMap.getGraph();
 
-            while ("exterior" != CurrentRoom.getName() && LifePoints > 0) {
+            //TODO: power up
+            getRandomPowerUp();
+
+            while (!(CurrentRoom.getName().equals("exterior")) && player.getLifePoints() > 0) {
 
                 System.out.println("Current Room:" + CurrentRoom.getName() + "\n");
-                if (CurrentRoom.getGhost() != 0) {
-                    System.out.println("UUUU fantasma perdes-te : " + CurrentRoom.getGhost() + "Pontos\n");
-                }
-                  System.out.println("Current life points"+ LifePoints);
+
+                VisualizeMap(); //TODO: mostrar fantasmas
+
+                System.out.println("Current life points: "+ player.getLifePoints());
                 System.out.println("Wich room to go:\n");
 
                 int[] AdjacentRooms = tmp.GetIndexOfAdjVertices(CurrentRoom);
 
-                Object[] Vertices = new Object[tmp.getVertices().length];
-
-                Vertices = tmp.getVertices();
+                Object[] Vertices = tmp.getVertices();
 
                 int i = 0;
 
@@ -71,20 +74,70 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
                 String n = reader.readLine();
 
+                //TODO: try catch para o parse int
                 CurrentRoom = ((Room) Vertices[AdjacentRooms[Integer.parseInt(n) - 1]]);
-                LifePoints -= Difficulty * ((Room) tmp.getVertices()[Integer.parseInt(n)]).getGhost();
-              
 
+                //TODO: lógica de verficar se perde pontos
+                player.setLifePoints(player.getLifePoints() - ((Room) tmp.getVertices()[Integer.parseInt(n)]).getGhost());
+
+                //TODO: lógica de mover fantasmas
+                for(Object roomObject : Vertices)
+                {
+                    Room room = (Room) roomObject;
+                    ArrayUnorderedList<Fantasma> roomFantasmas = room.getGhosts();
+                    if(roomFantasmas.size() == 0)
+                        continue;
+
+                    ArrayUnorderedList<Room> verticesThatComplyWithConditions = new ArrayUnorderedList<>();
+                    int playerCurrentVerticeIndex = tmp.getIndex(CurrentRoom);
+                    int[] adjacentVertices = tmp.GetIndexOfAdjVertices(room);
+                    for(int j = 0; j < adjacentVertices.length; j++)
+                    {
+                        //if player is in this place
+                        if(adjacentVertices[j] == playerCurrentVerticeIndex)
+                            continue;
+
+                        Room adjacentRoom = (Room)(tmp.getVertices())[adjacentVertices[j]];
+                        //if a ghost is already in this place
+                        if(adjacentRoom.getGhosts().size() > 0)
+                            continue;
+
+                        verticesThatComplyWithConditions.addToRear(adjacentRoom);
+                    }
+
+                    while(verticesThatComplyWithConditions.size() != 0)
+                    {
+                        Room chosenRoom;
+                        Iterator roomFantasmasIterator = roomFantasmas.iterator();
+                        while(roomFantasmasIterator.hasNext())
+                        {
+                            Fantasma fantasma = (Fantasma) roomFantasmasIterator.next();
+                            int chosenRoomIndex = (int) (Math.random() * verticesThatComplyWithConditions.size());
+                            Iterator verticesThatComplyWithConditionsIterator = verticesThatComplyWithConditions.iterator();
+                            for(int k = 0; k < chosenRoomIndex ; k++)
+                                verticesThatComplyWithConditionsIterator.next();
+                            chosenRoom = (Room) verticesThatComplyWithConditionsIterator.next();
+
+                            //troca de uma room para outra
+                            chosenRoom.addGhost(fantasma);
+                            room.removeGhost(fantasma);
+
+                            //retirar o que deixou de cumprir a condição de não ter lá uma ghost
+                            verticesThatComplyWithConditionsIterator.remove();
+                        }
+                    }
+
+                }
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-            if (LifePoints > 0) {
+            if (player.getLifePoints() > 0) {
                 System.out.println("You just won the game!\nPlease gives you nickname:");
 
                 String n = reader.readLine();
 
-                PlayerInformation InfoToTheLeaderBoard = new PlayerInformation(n, LifePoints);
+                Player InfoToTheLeaderBoard = new Player(n, player.getLifePoints());
 
                 SelectedMap.AddToTheLeaderboard(InfoToTheLeaderBoard);
 
@@ -98,7 +151,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             Room Exit = new Room("exterior", 0);
 
-            it = SelectedMap.getMap().iteratorShortestPathWeight(SelectedMap.getMapStartingLocation(), Exit);
+            it = SelectedMap.getGraph().iteratorShortestPathWeight(SelectedMap.getMapStartingLocation(), Exit);
 
             while (it.hasNext()) {
 
@@ -111,13 +164,31 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         }
     }
 
+    private void getRandomPowerUp()
+    {
+        int randomNumberForPowerUpType = (int) ((Math.random() * 3) + 1);
+        switch (randomNumberForPowerUpType)
+        {
+            case 1:
+                player.setLifePoints(player.getLifePoints() + 25);
+                break;
+            case 2:
+                int randomNumberForShield = (int) ((Math.random() * getSelectedMap().getBiggestGhost()) + 1);
+                player.setEscudo(randomNumberForShield);
+                break;
+            case 3:
+                player.setTeletransporte(true);
+                break;
+        }
+    }
+
     @Override
     public boolean CheckMap(Map mapa) throws EmptyCollectionException {
         boolean a = true;
         long LifePoints = mapa.getInitialLifePoints();
         Room Exit = new Room("exterior", 0);
         Iterator it;
-        it = mapa.getMap().iteratorShortestPathWeight(mapa.getMapStartingLocation(), Exit);
+        it = mapa.getGraph().iteratorShortestPathWeight(mapa.getMapStartingLocation(), Exit);
         while (it.hasNext()) {
             LifePoints -= getDifficulty() * ((Room) it.next()).getGhost();
         }
@@ -162,9 +233,9 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     public void VisualizeMap() {
 
         if ("simulation" == this.GameMode) {
-            System.out.println(SelectedMap.getMap().toString());
+            System.out.println(SelectedMap.getGraph().toString());
         } else {
-            String tmp = SelectedMap.getMap().toString();
+            String tmp = SelectedMap.getGraph().toString();
             String[] Arraytmp;
             Arraytmp = tmp.split("Weights of Edges");
             System.out.println(Arraytmp[0]);
@@ -176,23 +247,24 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
         int i = 0;
 
-        if (Maps.length == MapCounter) {
-            ExtendMapCapacity();
-        }
-
         JSONObject obj = (JSONObject) new JSONParser().parse(new FileReader(path));
-        boolean l = true;
-        for (int p = 0; p < MapCounter; p++) {
-            if (Maps[p].getName().equals((String) obj.get("nome"))) {
-                l = false;
+        boolean nameDoesntExists = true;
+
+        Iterator iterator = Maps.iterator();
+        while(iterator.hasNext())
+        {
+            Map map = (Map) iterator.next();
+            if (map.getName().equals(obj.get("nome"))) {
+                nameDoesntExists = false;
             }
         }
-        if (l == true) {
-            Maps[MapCounter] = new Map((String) obj.get("nome"), (long) obj.get("pontos"));
+        if (nameDoesntExists == true) {
+            Map newMap = new Map((String) obj.get("nome"), (long) obj.get("pontos"));
+            Maps.addToRear(newMap);
 
             JSONArray jsonArray = (JSONArray) obj.get("mapa");
 
-            DirectedNetworkWithMatrix tmp = Maps[MapCounter].getMap();
+            DirectedNetworkWithMatrix tmp = newMap.getGraph();
 
             Room[] ArrayOfRooms = new Room[jsonArray.size()];
 
@@ -213,9 +285,6 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             i = 0;
             long biggestGhost = 0;
-            int leftLimit = 0;
-            int rightLimit = tmp.size();
-            int generatedint = leftLimit + (int) (Math.random() * (rightLimit - leftLimit));
 
             while (i < jsonArray.size()) {
 
@@ -226,7 +295,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 while (o < jsonArray2.size()) {
                     if ("entrada".equals((String) jsonArray2.get(o))) {
                         Room StartLocation = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), (long) ((JSONObject) jsonArray.get(i)).get("fantasma"));
-                        Maps[MapCounter].setMapStartingLocation(StartLocation);
+                        newMap.setMapStartingLocation(StartLocation);
                         if ((long) ((JSONObject) jsonArray.get(i)).get("fantasma") > biggestGhost) {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
@@ -252,14 +321,6 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 }
                 i++;
             }
-            int leftLimit2 = 1;
-            int rightLimit3 = (int) biggestGhost;
-            int generatedint3 = leftLimit + (int) (Math.random() * (rightLimit - leftLimit));
-            do {
-                generatedint = leftLimit + (int) (Math.random() * (rightLimit - leftLimit));
-            } while ((((Room) tmp.getVertices()[generatedint]).getGhost()) != 0);
-            ((Room) tmp.getVertices()[generatedint]).setGhost(generatedint3);
-            MapCounter++;
 
         } else {
             System.out.println("Erro mapa ja existe");
@@ -333,14 +394,5 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     @Override
     public void setDifficulty(int Difficulty) {
         this.Difficulty = Difficulty;
-    }
-
-    @Override
-    public void ExtendMapCapacity() {
-        Map[] tmp = new Map[Maps.length + DEFAULT_CAPACITY];
-
-        System.arraycopy(Maps, 0, tmp, 0, MapCounter);
-
-        Maps = tmp;
     }
 }

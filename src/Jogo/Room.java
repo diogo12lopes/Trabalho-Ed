@@ -5,6 +5,12 @@
  */
 package Jogo;
 
+import Exceptions.ElementNotFoundException;
+import Exceptions.EmptyCollectionException;
+import UnorederedList.ArrayUnorderedList;
+
+import java.util.Iterator;
+
 /**
  *
  * @author Diogo Lopes 8180121
@@ -12,11 +18,10 @@ package Jogo;
 public class Room implements Comparable {
 
     private String name;
-    private long ghost;
+    private ArrayUnorderedList<Fantasma> ghosts;
 
     public Room(String name, long Ghost) {
         this.name = name;
-        this.ghost = Ghost;
     }
 
     public Room() {
@@ -31,12 +36,28 @@ public class Room implements Comparable {
         this.name = name;
     }
 
-    public long getGhost() {
-        return ghost;
+    public long getTotalDamage() {
+        long totalDamage = 0;
+        Iterator ghostsIterator = ghosts.iterator();
+        while (ghostsIterator.hasNext())
+            totalDamage += (((Fantasma)ghostsIterator.next()).getDamage());
+
+        return totalDamage;
     }
 
-    public void setGhost(long ghost) {
-        this.ghost = ghost;
+    public ArrayUnorderedList<Fantasma> getGhosts()
+    {
+        return ghosts;
+    }
+
+    public void setGhosts(ArrayUnorderedList<Fantasma> ghosts)
+    {
+        this.ghosts = ghosts;
+    }
+
+    public void addGhost(Fantasma ghost)
+    {
+        this.ghosts.addToRear(ghost);
     }
 
     @Override
@@ -50,5 +71,10 @@ public class Room implements Comparable {
         Room Comparator = (Room) o;
 
         return this.getName().compareTo(Comparator.getName());
+    }
+
+    public void removeGhost(Fantasma fantasma) throws ElementNotFoundException, EmptyCollectionException
+    {
+        this.ghosts.remove(fantasma);
     }
 }
