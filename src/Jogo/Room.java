@@ -20,6 +20,7 @@ public class Room implements Comparable {
     private String name;
     private ArrayUnorderedList<Fantasma> ghosts;
     private RewardItem rewardItem = RewardItem.None;
+    private boolean hasGhostBeenPlacedHereInThisPlay = false;
 
     public Room(String name, ArrayUnorderedList<Fantasma> ghosts) {
         this.name = name;
@@ -67,6 +68,16 @@ public class Room implements Comparable {
     public void addGhost(Fantasma ghost)
     {
         this.ghosts.addToRear(ghost);
+    }
+
+    public boolean hasGhostBeenPlacedHereInThisPlay()
+    {
+        return hasGhostBeenPlacedHereInThisPlay;
+    }
+
+    public void setHasGhostBeenPlacedHereInThisPlay(boolean hasGhostBeenPlacedHereInThisPlay)
+    {
+        this.hasGhostBeenPlacedHereInThisPlay = hasGhostBeenPlacedHereInThisPlay;
     }
 
     @Override

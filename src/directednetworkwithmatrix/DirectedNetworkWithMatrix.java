@@ -464,8 +464,37 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
         int j = 0;
         int[] resultArray = new int[k];
         for (int i = 0; i < numVertices; i++) {
-            if (tempArray[k] != -1) {
-                resultArray[j] = tempArray[k];
+            if (tempArray[i] != -1) {
+                resultArray[j] = tempArray[i];
+                j++;
+            }
+        }
+
+        return resultArray;
+    }
+
+    public int[] GetIndexOfPreviousVertices(T Vertex) {
+
+        int[] tempArray = new int[numVertices];
+
+        for (int i = 0; i < numVertices; i++) {
+            tempArray[i] = -1;
+        }
+
+        int k = 0;
+
+        for (int i = 0; i < numVertices; i++) {
+            if (adjMatrix[i][getIndex(Vertex)]) {
+                tempArray[k] = i;
+                k++;
+            }
+        }
+
+        int j = 0;
+        int[] resultArray = new int[k];
+        for (int i = 0; i < numVertices; i++) {
+            if (tempArray[i] != -1) {
+                resultArray[j] = tempArray[i];
                 j++;
             }
         }

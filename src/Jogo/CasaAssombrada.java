@@ -85,6 +85,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             //TODO undo
 
+            //TODO difficulty multiplkicar por cada fanatasma em cada room
 
             currentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhosts());
 
@@ -110,12 +111,9 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
                 Object[] Vertices = tmp.getVertices();
 
-                int i = 0;
+                for (int i = 0; i < AdjacentRooms.length; i++)
+                    System.out.println((i + 1) + "." + Vertices[AdjacentRooms[i]]);
 
-                while (AdjacentRooms[i] != -1) {
-                    System.out.println((i + 1) + "." + (Room) Vertices[AdjacentRooms[i]]);
-                    i++;
-                }
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -148,11 +146,11 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 }
 
                 //TODO: lógica de mover fantasmas
-                for(Object roomObject : Vertices)
+                for (int i = 0; i < tmp.size(); i++)
                 {
-                    Room room = (Room) roomObject;
+                    Room room = (Room) tmp.getVertices()[i];
                     ArrayUnorderedList<Fantasma> roomFantasmas = room.getGhosts();
-                    if(roomFantasmas.size() == 0)
+                    if(roomFantasmas.size() == 0 || room.hasGhostBeenPlacedHereInThisPlay())
                         continue;
 
                     ArrayUnorderedList<Room> verticesThatComplyWithConditions = new ArrayUnorderedList<>();
@@ -163,37 +161,52 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                         //if player is in this place
                         if(adjacentVertices[j] == playerCurrentVerticeIndex)
                             continue;
-
                         Room adjacentRoom = (Room)(tmp.getVertices())[adjacentVertices[j]];
                         //if a ghost is already in this place
                         if(adjacentRoom.getGhosts().size() > 0)
                             continue;
 
+                        //cannot send ghosts to exterior
+                        if(adjacentRoom.getName().equals("exterior"))
+                            continue;
+
                         verticesThatComplyWithConditions.addToRear(adjacentRoom);
                     }
 
-                    while(verticesThatComplyWithConditions.size() != 0)
+                    Iterator roomFantasmasIterator = roomFantasmas.iterator();
+                    while(roomFantasmasIterator.hasNext() && verticesThatComplyWithConditions.size() != 0)
                     {
-                        Room chosenRoom;
-                        Iterator roomFantasmasIterator = roomFantasmas.iterator();
-                        while(roomFantasmasIterator.hasNext())
+                        Fantasma fantasma = (Fantasma) roomFantasmasIterator.next();
+                        int chosenRoomIndex = (int) (Math.random() * verticesThatComplyWithConditions.size());
+                        Iterator verticesThatComplyWithConditionsIterator = verticesThatComplyWithConditions.iterator();
+                        for(int k = 0; k < chosenRoomIndex ; k++)
+                            verticesThatComplyWithConditionsIterator.next();
+                        Room chosenRoom = (Room) verticesThatComplyWithConditionsIterator.next();
+
+                        //troca de uma room para outra
+                        chosenRoom.addGhost(fantasma);
+                        room.removeGhost(fantasma);
+
+                        int[] previousVerticesIndexes =  tmp.GetIndexOfPreviousVertices(room);
+                        for (int j = 0; j < previousVerticesIndexes.length; j++)
                         {
-                            Fantasma fantasma = (Fantasma) roomFantasmasIterator.next();
-                            int chosenRoomIndex = (int) (Math.random() * verticesThatComplyWithConditions.size());
-                            Iterator verticesThatComplyWithConditionsIterator = verticesThatComplyWithConditions.iterator();
-                            for(int k = 0; k < chosenRoomIndex ; k++)
-                                verticesThatComplyWithConditionsIterator.next();
-                            chosenRoom = (Room) verticesThatComplyWithConditionsIterator.next();
-
-                            //troca de uma room para outra
-                            chosenRoom.addGhost(fantasma);
-                            room.removeGhost(fantasma);
-
-                            //retirar o que deixou de cumprir a condição de não ter lá uma ghost
-                            verticesThatComplyWithConditionsIterator.remove();
+                            tmp.removeEdge((Room) tmp.getVertices()[previousVerticesIndexes[j]], room);
+                            tmp.addEdge((Room) tmp.getVertices()[previousVerticesIndexes[j]], room, room.getTotalDamage());
                         }
+
+                        // peso para a nova edge entre room e chosenRoom cujo peso é igual aos fanatsama em chosen room
+                        tmp.removeEdge(room, chosenRoom);
+                        tmp.addEdge(room, chosenRoom, chosenRoom.getTotalDamage());
+
+                        chosenRoom.setHasGhostBeenPlacedHereInThisPlay(true);
+
+                        //retirar o que deixou de cumprir a condição de não ter lá um ghost
+                        verticesThatComplyWithConditions.remove(chosenRoom);
                     }
                 }
+
+                //back all rooms hasGhostBeenPlacedHereInThisPlay field to base value false
+                setAllRoomsHasGhostBeenPlacedHereInThisPlayToBaseValue();
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -228,6 +241,15 @@ public class CasaAssombrada implements CasaAssombradaInterface {
             System.out.print("\n");
         } else {
             System.out.println("Erro nao existe esse modo de jogo");
+        }
+    }
+
+    private void setAllRoomsHasGhostBeenPlacedHereInThisPlayToBaseValue()
+    {
+        for (int i = 0; i < tmp.size(); i++)
+        {
+            Room room = (Room) tmp.getVertices()[i];
+            room.setHasGhostBeenPlacedHereInThisPlay(false);
         }
     }
 
