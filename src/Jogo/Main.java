@@ -79,7 +79,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
                                             n = reader.readLine();
 
@@ -147,7 +147,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
                                             n = reader.readLine();
 
@@ -215,7 +215,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
                                             n = reader.readLine();
 
@@ -296,7 +296,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
 
                                             n = reader.readLine();
@@ -365,7 +365,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
                                             n = reader.readLine();
 
@@ -433,7 +433,7 @@ public class Main {
                                             Iterator mapsIterator = tmpMaps.iterator();
                                             int i = 0;
                                             while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + ((Map)mapsIterator.next()).getName());
+                                                System.out.println((i + 1) + "." + mapsIterator.next());
 
                                             n = reader.readLine();
 

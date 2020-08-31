@@ -9,6 +9,8 @@ import Exceptions.ConcurrentModificationException;
 import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Interfaces.ListADT;
+
+import java.io.Serializable;
 import java.util.Iterator;
 
 
@@ -17,7 +19,8 @@ import java.util.Iterator;
  * @author Diogo Lopes 8180121
  * @param <T> wildtype
  */
-public class DoubleLinkedList<T> implements ListADT<T>, Iterable<T> {
+public class DoubleLinkedList<T> implements ListADT<T>, Iterable<T>, Serializable
+{
 
     protected DoubleNode rear;
     protected DoubleNode front;

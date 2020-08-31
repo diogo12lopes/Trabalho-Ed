@@ -23,6 +23,13 @@ public class ArrayUnorderedList<T> extends List<T> implements UnorderedListADT<T
         super(size);
     }
 
+    public ArrayUnorderedList(ArrayUnorderedList<T> ghosts)
+    {
+        this.ModCount = ghosts.ModCount;
+        this.rear = ghosts.rear;
+        this.Lista = ghosts.Lista.clone();
+    }
+
     @Override
     public void addToFront(T element) {
 

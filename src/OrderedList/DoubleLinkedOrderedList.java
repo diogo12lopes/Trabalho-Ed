@@ -14,6 +14,11 @@ import Interfaces.OrderedListADT;
  */
 public class DoubleLinkedOrderedList<T> extends DoubleLinkedList<T> implements OrderedListADT<T> {
 
+   /* public DoubleLinkedOrderedList(DoubleLinkedOrderedList<T> mapLeaderboard)
+    {
+        mapLeaderboard.clone()
+    }*/
+
     @Override
     public void add(T element) {
 

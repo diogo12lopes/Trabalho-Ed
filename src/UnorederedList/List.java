@@ -9,6 +9,8 @@ import Exceptions.ConcurrentModificationException;
 import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Interfaces.ListADT;
+
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -16,7 +18,8 @@ import java.util.Iterator;
  * @author Diogo Lopes 8180121
  * @param <T> wildtype
  */
-public class List<T> implements ListADT<T>, Iterable<T> {
+public class List<T> implements ListADT<T>, Iterable<T>, Serializable
+{
 
     //Rear é a posição livre a adicionar novo elemento...
     protected int ModCount;

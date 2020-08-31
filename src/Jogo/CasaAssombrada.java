@@ -8,18 +8,19 @@ package Jogo;
 import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import Interfaces.CasaAssombradaInterface;
+import LinkedStack.LinkedStack;
 import UnorederedList.ArrayUnorderedList;
 import directednetworkwithmatrix.DirectedNetworkWithMatrix;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.util.Iterator;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 /**
  *
@@ -34,11 +35,15 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     private Player player;
     private Room currentRoom;
     private DirectedNetworkWithMatrix<Room> tmp;
+    private LinkedStack<UndoInfo> undos;
+    private int numberOfUndosUsed;
 
     public CasaAssombrada()
     {
         Maps = new ArrayUnorderedList<>();
         player = new Player("", 0);
+        undos = new LinkedStack<UndoInfo>();
+        numberOfUndosUsed = 0;
     }
 
     public boolean checkTeletransporte()
@@ -85,7 +90,10 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             //TODO undo
 
-            //TODO difficulty multiplkicar por cada fanatasma em cada room
+
+            //TODO handle difficulty
+            changedGhostsNumberBasedOnDifficulty();
+
 
             currentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhosts());
 
@@ -114,10 +122,22 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 for (int i = 0; i < AdjacentRooms.length; i++)
                     System.out.println((i + 1) + "." + Vertices[AdjacentRooms[i]]);
 
+                System.out.println("To Undo enter \"Undo\"\n");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
                 String n = reader.readLine();
+
+                if(n.equalsIgnoreCase("undo"))
+                {
+                    undoLastMove();
+                    continue;
+                }
+
+                //save game state for undo
+                byte[] undoInfoBytes = serializeObject(new UndoInfo(SelectedMap, player, currentRoom, tmp));
+                UndoInfo undoInfo  = (UndoInfo) deserializeObject(undoInfoBytes);
+                undos.push(undoInfo);
 
                 //TODO: try catch para o parse int
                 currentRoom = ((Room) Vertices[AdjacentRooms[Integer.parseInt(n) - 1]]);
@@ -187,16 +207,20 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                         chosenRoom.addGhost(fantasma);
                         room.removeGhost(fantasma);
 
-                        int[] previousVerticesIndexes =  tmp.GetIndexOfPreviousVertices(room);
-                        for (int j = 0; j < previousVerticesIndexes.length; j++)
+                        int[] previousVerticesIndexesForRoom =  tmp.GetIndexOfPreviousVertices(room);
+                        for (int j = 0; j < previousVerticesIndexesForRoom.length; j++)
                         {
-                            tmp.removeEdge((Room) tmp.getVertices()[previousVerticesIndexes[j]], room);
-                            tmp.addEdge((Room) tmp.getVertices()[previousVerticesIndexes[j]], room, room.getTotalDamage());
+                            tmp.removeEdge((Room) tmp.getVertices()[previousVerticesIndexesForRoom[j]], room);
+                            tmp.addEdge((Room) tmp.getVertices()[previousVerticesIndexesForRoom[j]], room, room.getTotalDamage());
                         }
 
                         // peso para a nova edge entre room e chosenRoom cujo peso é igual aos fanatsama em chosen room
-                        tmp.removeEdge(room, chosenRoom);
-                        tmp.addEdge(room, chosenRoom, chosenRoom.getTotalDamage());
+                        int[] previousVerticesIndexesChosenRoom =  tmp.GetIndexOfPreviousVertices(chosenRoom);
+                        for (int j = 0; j < previousVerticesIndexesChosenRoom.length; j++)
+                        {
+                            tmp.removeEdge((Room) tmp.getVertices()[previousVerticesIndexesChosenRoom[j]], chosenRoom);
+                            tmp.addEdge((Room) tmp.getVertices()[previousVerticesIndexesChosenRoom[j]], chosenRoom, chosenRoom.getTotalDamage());
+                        }
 
                         chosenRoom.setHasGhostBeenPlacedHereInThisPlay(true);
 
@@ -241,6 +265,111 @@ public class CasaAssombrada implements CasaAssombradaInterface {
             System.out.print("\n");
         } else {
             System.out.println("Erro nao existe esse modo de jogo");
+        }
+    }
+
+    private Object deserializeObject(byte[] yourBytes) throws IOException
+    {
+        Object result = null;
+        ByteArrayInputStream bis = new ByteArrayInputStream(yourBytes);
+        ObjectInput in = null;
+        try {
+            in = new ObjectInputStream(bis);
+            result = in.readObject();
+        } catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
+        return result;
+    }
+
+    private byte[] serializeObject(Object obj) throws IOException
+    {
+        byte[] yourBytes;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream out = null;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(obj);
+            out.flush();
+           yourBytes = bos.toByteArray();
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
+        return yourBytes;
+    }
+
+    private void changedGhostsNumberBasedOnDifficulty()
+    {
+        for (int i = 0; i < tmp.size(); i++)
+        {
+            Room room = (Room) tmp.getVertices()[i];
+            ArrayUnorderedList<Fantasma> roomFantasmas = room.getGhosts();
+            if(roomFantasmas.size() == 0)
+                continue;
+            long ghostDamage = roomFantasmas.first().getDamage();
+            for (int j = 0; j < Difficulty - 1; j++)
+                roomFantasmas.addToRear(new Fantasma(ghostDamage));
+
+            int[] previousVerticesIndexesForRoom =  tmp.GetIndexOfPreviousVertices(room);
+            for (int j = 0; j < previousVerticesIndexesForRoom.length; j++)
+            {
+                tmp.removeEdge((Room) tmp.getVertices()[previousVerticesIndexesForRoom[j]], room);
+                tmp.addEdge((Room) tmp.getVertices()[previousVerticesIndexesForRoom[j]], room, room.getTotalDamage());
+            }
+        }
+    }
+
+    public void undoLastMove()
+    {
+        numberOfUndosUsed++;
+
+        //check it can continue based on set difficulty
+        boolean undosExpired = false;
+        switch (Difficulty)
+        {
+            case 1:
+                if(numberOfUndosUsed > 5)
+                    undosExpired = true;
+                break;
+            case 2:
+                if(numberOfUndosUsed > 3)
+                    undosExpired = true;
+                break;
+            case 3:
+                if(numberOfUndosUsed > 1)
+                    undosExpired = true;
+                break;
+        }
+        if(undosExpired)
+        {
+            System.out.println("Todos os undos já foram usados \n");
+            return;
+        }
+
+        try
+        {
+            UndoInfo undoInfo = undos.pop();
+            this.SelectedMap = undoInfo.getSelectedMap();
+            this.currentRoom = undoInfo.getCurrentRoom();
+            this.player = undoInfo.getPlayer();
+            this.tmp = undoInfo.getTmp();
+        } catch (EmptyCollectionException e)
+        {
+            numberOfUndosUsed--;
+            return;
         }
     }
 
@@ -295,8 +424,11 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         long LifePoints = mapa.getInitialLifePoints();
         Room Exit;
 
-        if(mapa.getMapStartingLocation() == null)
+        if(mapa.getMapStartingLocation() == null || mapa.getMapStartingLocation().getGhosts().size() != 0)
+        {
+            System.out.println("Não podem existir fantasmas na entrada");
             return false;
+        }
 
         for(Object vertice : tmp.getVertices())
         {
@@ -363,8 +495,6 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     @Override
     public void LoadAMap(String path) throws IOException, ParseException {
 
-        int i = 0;
-
         JSONObject obj = (JSONObject) new JSONParser().parse(new FileReader(path));
         boolean nameDoesntExists = true;
 
@@ -386,32 +516,28 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             Room[] ArrayOfRooms = new Room[jsonArray.size()];
 
-            while (i < jsonArray.size()) {
-
+            for (int i = 0; i < jsonArray.size(); i++)
+            {
                 ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
                 Room Place = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
 
                 ArrayOfRooms[i] = Place;
 
                 tmp.addVertex(Place);
-
-                i++;
             }
 
             Room Exit = new Room("exterior", new ArrayUnorderedList<>());
             tmp.addVertex(Exit);
 
-            i = 0;
             long biggestGhost = 0;
 
-            while (i < jsonArray.size()) {
-
+            for (int i = 0; i < jsonArray.size(); i++)
+            {
                 JSONArray jsonArray2 = (JSONArray) ((JSONObject) jsonArray.get(i)).get("ligacoes");
 
-                int o = 0;
-
-                while (o < jsonArray2.size()) {
-                    if ("entrada".equals((String) jsonArray2.get(o))) {
+                for (int j = 0; j < jsonArray2.size(); j++)
+                {
+                    if ("entrada".equals((String) jsonArray2.get(j))) {
                         ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
                         if(ghosts.size() != 0) // can not exist ghosts on entrance
                             continue;
@@ -420,7 +546,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                         if ((long) ((JSONObject) jsonArray.get(i)).get("fantasma") > biggestGhost) {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
-                    } else if ("exterior".equals((String) jsonArray2.get(o))) {
+                    } else if ("exterior".equals((String) jsonArray2.get(j))) {
                         ArrayUnorderedList<Fantasma> ghosts = createGhostObjectFromGhostDamageJsonObject(i, jsonArray);
                         Room tmpRoom = new Room((String) ((JSONObject) jsonArray.get(i)).get("aposento"), ghosts);
                         tmp.addEdge(tmpRoom, Exit, 0);
@@ -434,17 +560,14 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                             biggestGhost = (long) ((JSONObject) jsonArray.get(i)).get("fantasma");
                         }
                         for (int k = 0; k < ArrayOfRooms.length; k++) {
-                            if (ArrayOfRooms[k].getName().equals((String) jsonArray2.get(o))) {
+                            if (ArrayOfRooms[k].getName().equals((String) jsonArray2.get(j))) {
                                 tmp.addEdge(tmpRoom, ArrayOfRooms[k], ArrayOfRooms[k].getTotalDamage());
                                 break;
                             }
                         }
                     }
-                    o++;
                 }
-                i++;
             }
-
         } else {
             System.out.println("Erro mapa ja existe");
         }

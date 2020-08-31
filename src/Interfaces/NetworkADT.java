@@ -9,12 +9,16 @@ package Interfaces;
  *
  * @author Diogo Lopes 8180121
  */
+
+import java.io.Serializable;
+
 /**
  * NetworkADT defines the interface to a network.
  *
  * @param <T> wildtyypw
  */
-public interface NetworkADT<T> extends GraphADT<T> {
+public interface NetworkADT<T> extends GraphADT<T>, Serializable
+{
 
 
     /**

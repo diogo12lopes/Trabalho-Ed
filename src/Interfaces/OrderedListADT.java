@@ -5,12 +5,15 @@
  */
 package Interfaces;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Diogo Lopes 8180121
  * @param <T> wildstypwe
  */
-public interface OrderedListADT<T> extends ListADT<T> {
+public interface OrderedListADT<T> extends ListADT<T>, Serializable
+{
 
     /**
      * Adds the specified element to this list at the proper location

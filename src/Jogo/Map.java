@@ -8,12 +8,14 @@ package Jogo;
 import OrderedList.DoubleLinkedOrderedList;
 import directednetworkwithmatrix.DirectedNetworkWithMatrix;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Diogo Lopes 8180121
  */
-public class Map {
-
+public class Map implements Serializable
+{
     private String Name;
     private long InitialLifePoints;
     private Room MapStartingLocation;
@@ -27,6 +29,16 @@ public class Map {
         this.MapLeaderboard = new DoubleLinkedOrderedList();
         this.map = new DirectedNetworkWithMatrix();
     }
+
+    public Map(Map newMap) {
+        this.Name = new String(newMap.Name);
+        this.InitialLifePoints = newMap.InitialLifePoints;
+        this.MapStartingLocation = new Room(newMap.MapStartingLocation);
+        //this.MapLeaderboard = new DoubleLinkedOrderedList<Player>(newMap.MapLeaderboard);
+        //this.map = new DirectedNetworkWithMatrix<Room>(newMap.map);
+        this.BiggestGhost = newMap.BiggestGhost;
+    }
+
 
     public Room getMapStartingLocation() {
         return MapStartingLocation;

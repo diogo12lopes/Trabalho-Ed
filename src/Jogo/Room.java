@@ -9,14 +9,15 @@ import Exceptions.ElementNotFoundException;
 import Exceptions.EmptyCollectionException;
 import UnorederedList.ArrayUnorderedList;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
  *
  * @author Diogo Lopes 8180121
  */
-public class Room implements Comparable {
-
+public class Room implements Comparable, Serializable
+{
     private String name;
     private ArrayUnorderedList<Fantasma> ghosts;
     private RewardItem rewardItem = RewardItem.None;
@@ -25,6 +26,14 @@ public class Room implements Comparable {
     public Room(String name, ArrayUnorderedList<Fantasma> ghosts) {
         this.name = name;
         this.ghosts = ghosts;
+    }
+
+    public Room(Room newRoom)
+    {
+        this.name = new String(newRoom.name);
+        this.ghosts = new ArrayUnorderedList<>(newRoom.ghosts);
+        this.rewardItem = newRoom.rewardItem;
+        this.hasGhostBeenPlacedHereInThisPlay = newRoom.hasGhostBeenPlacedHereInThisPlay;
     }
 
     public String getName() {
