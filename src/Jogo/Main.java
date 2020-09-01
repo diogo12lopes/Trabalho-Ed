@@ -32,494 +32,242 @@ public class Main {
 
         boolean Ongoing = true;
 
-        while (Ongoing) {
-
-            System.out.println("Welcome to Casa Assombrada:\n1.Play \n2.LeaderBoard\n3.Exit");
+        while (Ongoing)
+        {
+            System.out.println("Welcome to Casa Assombrada:\n1.Play \n2.LeaderBoard\n3.Load Map\n4.Visualize Map\n5.Exit");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            String n = reader.readLine();
+            try
+            {
+                switch (Integer.parseInt(n))
+                {
+                    case 1:
+                        casaAssombradaMenu(Jogo);
+                        break;
+                    case 2:
+                        leaderboardMenu(Jogo);
+                        break;
+                    case 3:
+                        loadMapMenu(Jogo);
+                        break;
+                    case 4:
+                        choseFromKnownMaps(Jogo);
+                        Jogo.VisualizeMap();
+                        break;
+                    case 5:
+                        Ongoing = false;
+                        break;
+                    default:
+                        throw new Exception("Select one of the available options(1-5)\n");
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("Select one of the available options(1-5)\n");
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 
+    private static void leaderboardMenu(CasaAssombrada jogo) throws Exception
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String n;
+        if (jogo.getMaps().size() == 0)
+            throw new Exception("No maps loaded");
+
+        ArrayUnorderedList<String>  tmpMaps = jogo.getAllMapsName();
+        boolean validInput = false;
+        while (validInput == false)
+        {
+            System.out.println("Choose a map from wich you want to check the leaderboard.");
+
+            Iterator mapsNamesIterator = tmpMaps.iterator();
+            int i = 0;
+            while(mapsNamesIterator.hasNext())
+            {
+                System.out.println((i + 1) + "." + mapsNamesIterator.next());
+                i++;
+            }
+
+            n = reader.readLine();
+            int optionChoosen = -1;
+            try
+            {
+                optionChoosen = Integer.parseInt(n);
+            }
+            catch(NumberFormatException e)
+            {
+                System.out.println("Select one of the available options(1-" + i + ")\n");
+            }
+            if(optionChoosen < 0 || optionChoosen > i)
+                continue;
+
+            mapsNamesIterator = tmpMaps.iterator();
+            for (int j = 0; j < Integer.parseInt(n) - 1; j++)
+                mapsNamesIterator.next();
+            jogo.CheckLeaderboard((String) mapsNamesIterator.next());
+            validInput = true;
+        }
+    }
+
+    private static void casaAssombradaMenu(CasaAssombrada jogo) throws Exception
+    {
+        boolean validInput = false;
+        while(validInput == false)
+        {
+            System.out.println("Choose a game mode:\n1.Manual \n2.Simulation");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String n = reader.readLine();
 
-            switch (Integer.parseInt(n)) {
-                case 1:
-
-                    System.out.println("Choose a game mode:\n1.Manual \n2.Simulation");
-
-                    n = reader.readLine();
-
-                    switch (Integer.parseInt(n)) {
-
-                        case 1:
-                            Jogo.Select_Game_Mode("manual");
-
-                            System.out.println("Choose a game difficulty:\n1.Basic \n2.Normal\n3.Hard");
-
-                            n = reader.readLine();
-
-                            switch (Integer.parseInt(n)) {
-
-                                case 1:
-                                    Jogo.Select_Difficulty(1);
-
-                                    System.out.println("1.Play an existent map \n2.Load a map");
-
-                                    n = reader.readLine();
-
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
-
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                case 2:
-                                    Jogo.Select_Difficulty(2);
-
-                                    System.out.println("1.Play an existent map \n2.Load a map");
-
-                                    n = reader.readLine();
-
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
-
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                case 3:
-                                    Jogo.Select_Difficulty(3);
-
-                                    System.out.println("1.Play an existent map \n2.Load a map");
-
-                                    n = reader.readLine();
-
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
-
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size() + 1) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("manual");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                default:
-                                    System.out.println("Select one of the available options(1-3)\n");
-                            }
-                            break;
-
-                        case 2:
-                            Jogo.Select_Game_Mode("simulation");
+            try
+            {
+                switch (Integer.parseInt(n))
+                {
+                    case 1:
+                        validInput = true;
+                        boolean validInput2 = false;
+                        while(validInput2 == false)
+                        {
+                            jogo.Select_Game_Mode("manual");
 
                             System.out.println("Choose a game difficulty:\n1.Basic \n2.Normal\n3.Hard");
 
                             n = reader.readLine();
 
-                            switch (Integer.parseInt(n)) {
-                                case 1:
-                                    Jogo.Select_Difficulty(1);
+                            try
+                            {
+                                switch (Integer.parseInt(n)) {
 
-                                    System.out.println("1.Play an existent map \n2.Load a map");
+                                    case 1:
+                                        jogo.Select_Difficulty(1);
+                                        validInput2 = true;
+                                        break;
 
-                                    n = reader.readLine();
+                                    case 2:
+                                        jogo.Select_Difficulty(2);
+                                        validInput2 = true;
+                                        break;
 
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
+                                    case 3:
+                                        jogo.Select_Difficulty(3);
+                                        validInput2 = true;
+                                        break;
 
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) < tmpMaps.size() + 1) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                case 2:
-                                    Jogo.Select_Difficulty(2);
-
-                                    System.out.println("1.Play an existent map \n2.Load a map");
-
-                                    n = reader.readLine();
-
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
-
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size()) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                case 3:
-                                    Jogo.Select_Difficulty(3);
-
-                                    System.out.println("1.Play an existent map \n2.Load a map");
-
-                                    n = reader.readLine();
-
-                                    switch (Integer.parseInt(n)) {
-                                        case 1:
-                                            if (Jogo.getMaps().size() == 0) {
-                                                throw new Exception("error");
-                                            }
-                                            ArrayUnorderedList<String> tmpMaps;
-
-                                            tmpMaps = Jogo.getAllMapsName();
-
-                                            System.out.println("Choose a map:");
-
-                                            Iterator mapsIterator = tmpMaps.iterator();
-                                            int i = 0;
-                                            while(mapsIterator.hasNext())
-                                                System.out.println((i + 1) + "." + mapsIterator.next());
-
-                                            n = reader.readLine();
-
-                                            if (Integer.parseInt(n) < 0 && Integer.parseInt(n) > tmpMaps.size()) {
-                                                System.out.println("Choose a existent map");
-                                                break;
-                                            } else {
-                                                Jogo.Select_Map(Integer.parseInt(n) - 1);
-                                            }
-
-                                            System.out.println("1.Play the map\n2.Visualize map ");
-
-                                            n = reader.readLine();
-
-                                            switch (Integer.parseInt(n)) {
-                                                case 1:
-                                                    Jogo.play();
-                                                    break;
-                                                case 2:
-                                                    Jogo.VisualizeMap();
-                                                    break;
-                                                default:
-                                                    System.out.println("Select one of the available options (1-2)\n");
-                                            }
-                                            break;
-                                        case 2:
-                                            System.out.println("Input the path to the map you wish to load:\n");
-
-                                            n = reader.readLine();
-
-                                            Jogo.LoadAMap(n);
-                                            if (Jogo.CheckMap(Jogo.getMaps().last()) == false) {
-                                                System.out.println("Impossible map");
-                                                Jogo.deleteLastMap();
-                                            } else {
-
-                                                Jogo.Select_Game_Mode("simulation");
-                                                Jogo.Select_Map(Jogo.getMaps().size() - 1);
-                                                Jogo.play();
-                                            }
-                                            break;
-                                        default:
-                                            System.out.println("Select one of the available options(1-2)\n");
-                                    }
-                                    break;
-
-                                default:
-                                    System.out.println("Select one of the available options(1-3)\n");
+                                    default:
+                                        throw new Exception("Select one of the available options(1-3)\n");
+                                }
                             }
-                            break;
+                            catch (NumberFormatException e)
+                            {
+                                System.out.println("Select one of the available options(1-3)\n");
+                            }
+                            catch (Exception e)
+                            {
+                                System.out.println(e.getMessage());
+                            }
+                        }
 
-                        default:
-                            System.out.println("Select one of the available options(1-2)\n");
-                    }
+                        choseFromKnownMaps(jogo);
+                        jogo.play();
+                        break;
 
-                    break;
+                    case 2:
+                        validInput = true;
+                        jogo.Select_Game_Mode("simulation");
+                        choseFromKnownMaps(jogo);
+                        jogo.play();
 
-                case 2:
-                    if (Jogo.getMaps().size() == 0) {
-                        throw new Exception("error");
-                    }
-                    ArrayUnorderedList<String> tmpMaps;
+                    default:
+                        throw new Exception("Select one of the available options(1-2)\n");
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                System.out.println("Select one of the available options(1-2)\n");
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 
-                    tmpMaps = Jogo.getAllMapsName();
+    private static void choseFromKnownMaps(CasaAssombrada jogo) throws Exception
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-                    System.out.println("Choose a map from wich you want to check the leaderboard.");
+        if (jogo.getMaps().size() == 0) {
+            throw new Exception("error");
+        }
+        ArrayUnorderedList<String> tmpMaps;
 
-                    Iterator mapsIterator = tmpMaps.iterator();
-                    int i = 0;
-                    while(mapsIterator.hasNext())
-                        System.out.println((i + 1) + "." + mapsIterator.next());
+        tmpMaps = jogo.getAllMapsName();
 
-                    n = reader.readLine();
+        boolean validMapChosen = false;
+        while (validMapChosen == false)
+        {
+                System.out.println("Choose a map:");
 
-                    mapsIterator = tmpMaps.iterator();
-                    for (int j = 0; j < Integer.parseInt(n) - 1; j++)
-                        mapsIterator.next();
-                    Jogo.CheckLeaderboard((Map) mapsIterator.next());
+                Iterator mapsIterator = tmpMaps.iterator();
+                int i = 0;
+                while(mapsIterator.hasNext())
+                {
+                    System.out.println((i + 1) + "." + mapsIterator.next());
+                    i++;
+                }
 
-                    break;
-                case 3:
-                    Ongoing = false;
-                    break;
+                String n = reader.readLine();
+                int optionChosen = -1;
+                try
+                {
+                    optionChosen = Integer.parseInt(n);
+                }
+                catch (NumberFormatException e)
+                {
+                    System.out.println("Select one of the available options(1-" + i + ")\n");
+                }
 
-                default:
-                    System.out.println("Select one of the available options(1-3)\n");
+                if (optionChosen < 0 || optionChosen > tmpMaps.size()) {
+                    System.out.println("Inexistent map");
+                } else {
+                jogo.Select_Map(Integer.parseInt(n) - 1);
+                validMapChosen = true;
+            }
+        }
+    }
+
+    private static void loadMapMenu(CasaAssombrada jogo) throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        boolean validInput = false;
+        while(validInput)
+        {
+            System.out.println("Input the path to the map you wish to load:\n");
+            String n = reader.readLine();
+
+            try
+            {
+                jogo.LoadAMap(n);
+                if (jogo.CheckMap(jogo.getMaps().last()) == false) {
+                    System.out.println("Impossible map");
+                    jogo.deleteLastMap();
+                } else {
+                    //save to persistent file
+                    jogo.saveMaps();
+                    jogo.Select_Map(jogo.getMaps().size() - 1);
+                }
+                validInput = true;
+            }
+            catch (Exception e)
+            {
+                System.out.println("Failed to load map");
             }
         }
     }

@@ -23,29 +23,9 @@ public class ArrayUnorderedList<T> extends List<T> implements UnorderedListADT<T
         super(size);
     }
 
-    public ArrayUnorderedList(ArrayUnorderedList<T> ghosts)
-    {
-        this.ModCount = ghosts.ModCount;
-        this.rear = ghosts.rear;
-        this.Lista = ghosts.Lista.clone();
-    }
-
     @Override
     public void addToFront(T element) {
 
-        if (size() == Lista.length) {
-            ExpandCapacity();
-        }
-
-        Lista[rear] = element;
-
-        rear++;
-        ModCount++;
-    }
-
-    @Override
-    public void addToRear(T element) {
-        
         if (size() == Lista.length) {
             ExpandCapacity();
         }
@@ -58,6 +38,19 @@ public class ArrayUnorderedList<T> extends List<T> implements UnorderedListADT<T
 
         Lista = temp;
         Lista[0] = element;
+
+        rear++;
+        ModCount++;
+    }
+
+    @Override
+    public void addToRear(T element) {
+
+        if (size() == Lista.length) {
+            ExpandCapacity();
+        }
+
+        Lista[rear] = element;
 
         rear++;
         ModCount++;

@@ -54,9 +54,9 @@ public interface CasaAssombradaInterface {
      *
      * Method to check the leaderboard of the 15 players with the best scores.
      *
-     * @param Map Map chosen 
+     * @param mapName name of map chosen
      */
-    public void CheckLeaderboard(Map Map);
+    public void CheckLeaderboard(String mapName);
 
     /**
      *
@@ -134,10 +134,8 @@ public interface CasaAssombradaInterface {
  * @return  difficulty to be played
  */
     public int getDifficulty();
-     /**
-      *  difficulty to be played
-      * @param Difficulty  difficulty to be played
-      */
 
-    public void setDifficulty(int Difficulty);
+    void saveMaps();
+
+    void loadKnownMaps();
 }

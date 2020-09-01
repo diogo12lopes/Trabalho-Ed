@@ -28,14 +28,6 @@ public class Room implements Comparable, Serializable
         this.ghosts = ghosts;
     }
 
-    public Room(Room newRoom)
-    {
-        this.name = new String(newRoom.name);
-        this.ghosts = new ArrayUnorderedList<>(newRoom.ghosts);
-        this.rewardItem = newRoom.rewardItem;
-        this.hasGhostBeenPlacedHereInThisPlay = newRoom.hasGhostBeenPlacedHereInThisPlay;
-    }
-
     public String getName() {
         return name;
     }

@@ -23,7 +23,7 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
     protected final int DEFAULT_CAPACITY = 10;
     protected int numVertices; // number of vertices in the graph
     protected boolean[][] adjMatrix; // adjacency matrix
-    protected double[][] weightMatrix;// weights matrix 
+    protected double[][] weightMatrix;// weights matrix
     protected T[] vertices; // values of vertices
 
     /**
@@ -371,6 +371,12 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
         adjMatrix = tmp;
         weightMatrix = tmp2;
     }
+
+    public double[][] getWeightMatrix()
+    {
+        return weightMatrix;
+    }
+
 
     @Override
     public String toString() {

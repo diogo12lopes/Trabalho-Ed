@@ -5,12 +5,15 @@
  */
 package OrderedList;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Diogo Lopes 8180121
  * @param <T> wildtype
  */
-public class DoubleNode<T> {
+public class DoubleNode<T> implements Serializable
+{
 
     private DoubleNode<T> next;
     private T element;

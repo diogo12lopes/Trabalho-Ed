@@ -30,16 +30,6 @@ public class Map implements Serializable
         this.map = new DirectedNetworkWithMatrix();
     }
 
-    public Map(Map newMap) {
-        this.Name = new String(newMap.Name);
-        this.InitialLifePoints = newMap.InitialLifePoints;
-        this.MapStartingLocation = new Room(newMap.MapStartingLocation);
-        //this.MapLeaderboard = new DoubleLinkedOrderedList<Player>(newMap.MapLeaderboard);
-        //this.map = new DirectedNetworkWithMatrix<Room>(newMap.map);
-        this.BiggestGhost = newMap.BiggestGhost;
-    }
-
-
     public Room getMapStartingLocation() {
         return MapStartingLocation;
     }

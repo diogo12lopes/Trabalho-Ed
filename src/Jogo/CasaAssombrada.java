@@ -13,6 +13,8 @@ import UnorederedList.ArrayUnorderedList;
 import directednetworkwithmatrix.DirectedNetworkWithMatrix;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 import org.json.simple.JSONArray;
@@ -40,7 +42,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
     public CasaAssombrada()
     {
-        Maps = new ArrayUnorderedList<>();
+        loadKnownMaps();
         player = new Player("", 0);
         undos = new LinkedStack<UndoInfo>();
         numberOfUndosUsed = 0;
@@ -88,16 +90,12 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         player.setLifePoints(SelectedMap.getInitialLifePoints());
         if (GameMode.equals("manual")) {
 
-            //TODO undo
-
-
-            //TODO handle difficulty
-            changedGhostsNumberBasedOnDifficulty();
-
-
             currentRoom = new Room(SelectedMap.getMapStartingLocation().getName(), SelectedMap.getMapStartingLocation().getGhosts());
 
             tmp = SelectedMap.getGraph();
+
+            //TODO handle difficulty
+            changedGhostsNumberBasedOnDifficulty();
 
             //TODO: por power up no mapa
             putRandomPowerUpOnRoom();
@@ -106,6 +104,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
             {
                 //TODO ver se atingiu powerup
                 if(currentRoom.getRewardItem() != RewardItem.None)
+                    System.out.println("Congratz you got a power up :" + currentRoom.getRewardItem() );
                     setPlayerPowerUp(currentRoom.getRewardItem());
 
                 System.out.println("Current Room:" + currentRoom.getName() + "\n");
@@ -113,22 +112,39 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 VisualizeMap(); //TODO: mostrar fantasmas
 
                 System.out.println("Current life points: "+ player.getLifePoints());
-                System.out.println("Wich room to go:\n");
 
                 int[] AdjacentRooms = tmp.GetIndexOfAdjVertices(currentRoom);
 
                 Object[] Vertices = tmp.getVertices();
+                int i = 0;
+                int optionChosen = -1;
+                boolean validInput = false;
+                while(validInput == false)
+                 {
+                     i=0;
+                    System.out.println("Wich room to go:\n");
 
-                for (int i = 0; i < AdjacentRooms.length; i++)
-                    System.out.println((i + 1) + "." + Vertices[AdjacentRooms[i]]);
+                    for (; i < AdjacentRooms.length; i++)
+                        System.out.println((i + 1) + "." + Vertices[AdjacentRooms[i]]);
 
-                System.out.println("To Undo enter \"Undo\"\n");
+                    System.out.println((i + 1) + ".undo");
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    String n = reader.readLine();
+                    try{
+                        optionChosen = Integer.parseInt(n);
+                        if (optionChosen > 0 && optionChosen <= i+1)
+                            validInput = true;
 
-                String n = reader.readLine();
+                    }
+                    catch (NumberFormatException e){
+                        System.out.println("Input a valid number (1-"+ (i+1) + ")");
+                    }
 
-                if(n.equalsIgnoreCase("undo"))
+                }
+
+
+                if(optionChosen == i+1 )
                 {
                     undoLastMove();
                     continue;
@@ -139,15 +155,17 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 UndoInfo undoInfo  = (UndoInfo) deserializeObject(undoInfoBytes);
                 undos.push(undoInfo);
 
+                Room tempRoom = currentRoom;
                 //TODO: try catch para o parse int
-                currentRoom = ((Room) Vertices[AdjacentRooms[Integer.parseInt(n) - 1]]);
+                currentRoom = ((Room) Vertices[AdjacentRooms[optionChosen - 1]]);
 
                 //TODO: lógica de verficar se perde pontos
-                long totalInflictedDamage = ((Room) tmp.getVertices()[Integer.parseInt(n)]).getTotalDamage();
+                long totalInflictedDamage = (long) tmp.getWeightMatrix()[tmp.getIndex(tempRoom)][tmp.getIndex(currentRoom)];
                 if(totalInflictedDamage > 0)
                 {
                     if(checkTeletransporte())
                     {
+                        System.out.println("You got saved by teletranporte");
                         player.setTeletransporte(false);
                         totalInflictedDamage = 0;
                     }
@@ -166,7 +184,7 @@ public class CasaAssombrada implements CasaAssombradaInterface {
                 }
 
                 //TODO: lógica de mover fantasmas
-                for (int i = 0; i < tmp.size(); i++)
+                for (i = 0; i < tmp.size(); i++)
                 {
                     Room room = (Room) tmp.getVertices()[i];
                     ArrayUnorderedList<Fantasma> roomFantasmas = room.getGhosts();
@@ -243,7 +261,15 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
                 Player InfoToTheLeaderBoard = new Player(n, player.getLifePoints());
 
-                SelectedMap.AddToTheLeaderboard(InfoToTheLeaderBoard);
+                loadKnownMaps();
+                Iterator mapsIterator = Maps.iterator();
+                while (mapsIterator.hasNext())
+                {
+                    Map currMap = (Map)mapsIterator.next();
+                    if(currMap.getName().equals(SelectedMap.getName()))
+                        currMap.AddToTheLeaderboard(InfoToTheLeaderBoard);
+                }
+                saveMaps();
 
                 System.out.println("You can know check your leaderboard and see the top players!");
 
@@ -470,13 +496,24 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     }
 
     @Override
-    public void CheckLeaderboard(Map map) {
+    public void CheckLeaderboard(String mapName) {
 
-        Iterator it = map.getMapLeaderboard().iterator();
-        int i = 0;
-        while (it.hasNext())
+        Iterator mapLeaderboardIterator = null;
+        Iterator mapsIterator = Maps.iterator();
+        while(mapsIterator.hasNext())
         {
-            System.out.println(i + 1 + "º Lugar:\n" + it.next().toString());
+            Map currMap = (Map)mapsIterator.next();
+            if(currMap.getName().equals(mapName))
+            {
+                mapLeaderboardIterator = currMap.getMapLeaderboard().iterator();
+                break;
+            }
+        }
+
+        int i = 0;
+        while (mapLeaderboardIterator.hasNext())
+        {
+            System.out.println(i + 1 + "º Lugar:\n" + mapLeaderboardIterator.next().toString());
             i++;
         }
     }
@@ -638,7 +675,32 @@ public class CasaAssombrada implements CasaAssombradaInterface {
     }
 
     @Override
-    public void setDifficulty(int Difficulty) {
-        this.Difficulty = Difficulty;
+    public void saveMaps()
+    {
+        try
+        {
+            byte[] mapsBytes = serializeObject(Maps);
+            Files.write(Paths.get("maps"), mapsBytes);
+        } catch (IOException e)
+        {
+            System.out.println("Error saving map! The game will continue without saving");
+        }
     }
+
+    @Override
+    public void loadKnownMaps()
+    {
+        try
+        {
+            byte[] mapsBytes = Files.readAllBytes(Paths.get("maps"));
+            if(mapsBytes == null)
+                Maps = new ArrayUnorderedList<>();
+            Maps = (ArrayUnorderedList<Map>) deserializeObject(mapsBytes);
+        } catch (IOException e)
+        {
+            System.out.println("No known maps");
+            Maps = new ArrayUnorderedList<>();
+        }
+    }
+
 }
