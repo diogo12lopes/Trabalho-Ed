@@ -62,6 +62,11 @@ public class CasaAssombrada implements CasaAssombradaInterface {
         return false;
     }
 
+    /**
+     *
+     * @param rooms
+     * @return
+     */
     private Room getRandomRoomFromArray(ArrayUnorderedList<Room> rooms)
     {
         int chosenRoomIndex = (int) (Math.random() * rooms.size());
