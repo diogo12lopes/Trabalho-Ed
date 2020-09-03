@@ -506,7 +506,8 @@ public class CasaAssombrada implements CasaAssombradaInterface {
 
             Exit = currVerticeRoom;
             Iterator it = mapa.getGraph().iteratorShortestPathWeight(mapa.getMapStartingLocation(), Exit);
-            if(it.hasNext() == false)
+            
+            if(it.next() == null)
             {
                 System.out.println("No path beetween entrance and exit ");
                 return false;
