@@ -19,12 +19,6 @@ import java.io.Serializable;
  */
 public interface NetworkADT<T> extends GraphADT<T>, Serializable
 {
-    /**
-     * Inserts an edge between two vertices of this graph.
-     *
-     * @param vertex1 the first vertex
-     * @param vertex2 the second vertex
-     * @param weight the weight
-     */
+    
     public void addEdge(T vertex1, T vertex2, double weight);
 }
