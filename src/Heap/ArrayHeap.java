@@ -15,7 +15,6 @@ import Interfaces.HeapADT;
  * @author Diogo Lopes 8180121
  */
 /**
- * ArrayHeap provides an array implementation of a minheap.
  *
  * @param <T> wildtype
  */
@@ -26,13 +25,7 @@ public class ArrayHeap<T> extends ArrayBinaryTree<T>
         super();
     }
 
-    /**
-     * Adds the specified element to this heap in the appropriate position
-     * according to its key value. Note that equal elements are added to the
-     * right.
-     *
-     * @param obj the element to be added to this heap
-     */
+   
     @Override
     public void addElement(T obj) {
         if (count == tree.length) {
@@ -45,9 +38,7 @@ public class ArrayHeap<T> extends ArrayBinaryTree<T>
         }
     }
 
-    /**
-     * Reorders this heap to maintain the ordering property after adding a node.
-     */
+    
     private void heapifyAdd() {
         T temp;
         int next = count - 1;
@@ -61,13 +52,6 @@ public class ArrayHeap<T> extends ArrayBinaryTree<T>
         tree[next] = temp;
     }
 
-    /**
-     * Remove the element with the lowest value in this heap and returns a
-     * reference to it. Throws an EmptyCollectionException if the heap is empty.
-     *
-     * @return a reference to the element with the lowest value in this head
-     * @throws EmptyCollectionException if an empty collection exception occurs
-     */
     @Override
     public T removeMin() throws EmptyCollectionException {
         if (isEmpty()) {
@@ -81,9 +65,7 @@ public class ArrayHeap<T> extends ArrayBinaryTree<T>
         return minElement;
     }
 
-    /**
-     * Reorders this heap to maintain the ordering property.
-     */
+    
     private void heapifyRemove() {
         T temp;
         int node = 0;
@@ -121,10 +103,5 @@ public class ArrayHeap<T> extends ArrayBinaryTree<T>
             }
         }
         tree[node] = temp;
-    }
-
-    @Override
-    public T findMin() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

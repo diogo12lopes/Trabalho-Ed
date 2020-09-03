@@ -73,6 +73,11 @@ public class Main {
         }
     }
 
+    /**
+     * Mostra o menu do leaderboard e baseado no input do utilizador mostra o conjunto de resultados obtidos para um determinado mapa
+     * @param jogo a instância de jogo utilizada
+     * @throws Exception
+     */
     private static void leaderboardMenu(CasaAssombrada jogo) throws Exception
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -110,11 +115,16 @@ public class Main {
             mapsNamesIterator = tmpMaps.iterator();
             for (int j = 0; j < Integer.parseInt(n) - 1; j++)
                 mapsNamesIterator.next();
-            jogo.CheckLeaderboard((String) mapsNamesIterator.next());
+            jogo.VisualizeLeaderboard((String) mapsNamesIterator.next());
             validInput = true;
         }
     }
 
+    /**
+     * Mostra o menu que permite dar inicio a um jogo e baseado no input do utilizador permite a escolha da dificuldade e modo de jogo
+     * @param jogo a instância de jogo utilizada
+     * @throws Exception
+     */
     private static void casaAssombradaMenu(CasaAssombrada jogo) throws Exception
     {
         boolean validInput = false;
@@ -198,16 +208,19 @@ public class Main {
         }
     }
 
+    /**
+     * Método utilitário que permite a escolha de um mapa a partir da lista de mapas carregados em memória
+     * @param jogo a instância de jogo utilizada
+     * @throws Exception
+     */
     private static void choseFromKnownMaps(CasaAssombrada jogo) throws Exception
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        if (jogo.getMaps().size() == 0) {
-            throw new Exception("error");
-        }
-        ArrayUnorderedList<String> tmpMaps;
+        if (jogo.getMaps().size() == 0)
+            throw new Exception("No available maps");
 
-        tmpMaps = jogo.getAllMapsName();
+        ArrayUnorderedList<String> tmpMaps = jogo.getAllMapsName();
 
         boolean validMapChosen = false;
         while (validMapChosen == false)
@@ -242,12 +255,17 @@ public class Main {
         }
     }
 
+    /**
+     * Mostra o menu que permite carregar um novo mapa para memória, verificando a validade desse mapa
+     * @param jogo a instância de jogo utilizada
+     * @throws Exception
+     */
     private static void loadMapMenu(CasaAssombrada jogo) throws IOException
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         boolean validInput = false;
-        while(validInput)
+        while(validInput == false)
         {
             System.out.println("Input the path to the map you wish to load:\n");
             String n = reader.readLine();

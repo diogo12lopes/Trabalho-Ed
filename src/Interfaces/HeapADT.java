@@ -28,13 +28,4 @@ public interface HeapADT<T> extends BinaryTreeADT<T> {
      * @throws Exceptions.EmptyCollectionException Exception
  */
  public T removeMin()throws EmptyCollectionException;
-
- /**
- * Returns a reference to the element with the lowest value in
- * this heap.
- *
- * @return a reference to the element with the lowest value
- * in this heap
- */
- public T findMin();
 }

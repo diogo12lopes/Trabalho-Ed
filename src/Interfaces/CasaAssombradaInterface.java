@@ -56,7 +56,7 @@ public interface CasaAssombradaInterface {
      *
      * @param mapName name of map chosen
      */
-    public void CheckLeaderboard(String mapName);
+    public void VisualizeLeaderboard(String mapName);
 
     /**
      *
@@ -100,40 +100,12 @@ public interface CasaAssombradaInterface {
       * @return returns all maps available
       */
      public ArrayUnorderedList<Map> getMaps();
-     /**
-      * set a preexisting 
-      * @param Maps all maps wanted to set
-      */
-     public void setMaps(ArrayUnorderedList Maps);
-   
+
    /**
     *returns  map selected by user
     * @return map selected by user
     */ 
     public Map getSelectedMap() ;
-   
-/**
- * map selected by user
- * @param SelectedMap map selected by user
- */
-    public void setSelectedMap(Map SelectedMap);
-/**
- * gamemode to be played
- * @return gamemode to be played
- */
-    public String getGameMode();
-  
-/**
- * sets gamemode to be played
- * @param GameMode gamemode to be played
- */
-    public void setGameMode(String GameMode);
-    
-/**
- * difficulty to be played
- * @return  difficulty to be played
- */
-    public int getDifficulty();
 
     void saveMaps();
 

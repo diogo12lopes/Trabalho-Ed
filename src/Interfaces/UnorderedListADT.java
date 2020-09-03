@@ -28,14 +28,4 @@ public interface UnorderedListADT<T> extends ListADT<T> {
      * @param element the element to be added to the rear of the list
      */
     public void addToRear(T element);
-    
-    /**
-     * Adds the specifed element to the position after an identified element of the list
-     *
-     * @param elementFinder the position element to find the locotaion as where to put the new element
-     * @param NewElment Element to add
-     * @throws Exceptions.EmptyCollectionException  Exception
-     * 
-     */
-    public void addAfter(T elementFinder,T NewElment)throws EmptyCollectionException;
 }

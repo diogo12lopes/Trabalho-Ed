@@ -26,7 +26,7 @@ public class LinkedStack<T> implements StackADT<T> {
 
     @Override
     public void push(T element) {
-        // Create a new node with given data
+   
         LinearNode new_node = new LinearNode(element);
 
         if (this.top.getNext() == null) {
@@ -50,16 +50,6 @@ public class LinkedStack<T> implements StackADT<T> {
             tmp.setNext(null);
             count --;
             return (T) tmp.getElement();
-        }
-    }
-
-    @Override
-    public T peek() throws EmptyCollectionException {
-        if (isEmpty()) {
-            throw new EmptyCollectionException("The stack is empty...");
-        }
-        else{
-            return (T) top.getNext().getElement();
         }
     }
 

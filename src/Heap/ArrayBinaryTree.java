@@ -10,7 +10,6 @@ import Exceptions.EmptyCollectionException;
 import Interfaces.BinaryTreeADT;
 import LinkedQueue.LinkedQueue;
 import UnorederedList.ArrayUnorderedList;
-import java.util.Iterator;
 
 /**
  *
@@ -23,9 +22,7 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
     protected T[] tree;
     private final int CAPACITY = 50;
 
-    /**
-     * Creates an empty binary tree.
-     */
+  
     public ArrayBinaryTree() {
         count = 0;
         tree = (T[]) new Object[CAPACITY];
@@ -55,11 +52,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
     }
 
     @Override
-    public T getRoot() {
-        return tree[0];
-    }
-
-    @Override
     public boolean isEmpty() {
         return (count == 0);
     }
@@ -79,14 +71,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
         return true;
     }
 
-    @Override
-    public Iterator<T> iteratorInOrder() {
-        ArrayUnorderedList<T> templist = new ArrayUnorderedList<>();
-        inorder(0, templist);
-        return templist.iterator();
-
-    }
-
     protected void inorder(int node, ArrayUnorderedList<T> templist) {
         if (node < tree.length) {
             if (tree[node] != null) {
@@ -95,13 +79,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
                 inorder((node + 1) * 2, templist);
             }
         }
-    }
-
-    @Override
-    public Iterator<T> iteratorPreOrder() {
-        ArrayUnorderedList<T> templist = new ArrayUnorderedList<>();
-        preorder(0, templist);
-        return templist.iterator();
     }
 
     protected void preorder(int node, ArrayUnorderedList<T> templist) {
@@ -114,13 +91,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
         }
     }
 
-    @Override
-    public Iterator<T> iteratorPostOrder() {
-        ArrayUnorderedList<T> templist = new ArrayUnorderedList<>();
-        postorder(0, templist);
-        return templist.iterator();
-    }
-
     protected void postorder(int node, ArrayUnorderedList<T> templist) {
         if (node < tree.length) {
             if (tree[node] != null) {
@@ -129,14 +99,6 @@ public class ArrayBinaryTree<T> implements BinaryTreeADT<T> {
                 templist.addToRear(tree[node]);
             }
         }
-    }
-
-    @Override
-    public Iterator<T> iteratorLevelOrder() throws EmptyCollectionException {
-        ArrayUnorderedList<T> templist = new ArrayUnorderedList<>();
-        LinkedQueue tempQueue = new LinkedQueue();
-        levelorder(0, templist, tempQueue);
-        return templist.iterator();
     }
 
     protected void levelorder(int node, ArrayUnorderedList<T> templist, LinkedQueue tempQueue) throws EmptyCollectionException {

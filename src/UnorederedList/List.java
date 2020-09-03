@@ -21,7 +21,6 @@ import java.util.Iterator;
 public class List<T> implements ListADT<T>, Iterable<T>, Serializable
 {
 
-    //Rear é a posição livre a adicionar novo elemento...
     protected int ModCount;
     protected int rear;
     protected final int DEFAULT_CAPACITY = 20;

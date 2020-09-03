@@ -68,22 +68,19 @@ public class LinkedList<T> implements Iterable<T> {
     }
 
     public void addNewNode(T Objeto) {
-        // Create a new node with given data 
+       
         LinkedNode new_node = new LinkedNode(Objeto);
 
-        // If the Linked List is empty, 
-        // then make the new node as head 
         if (Head == null) {
             Head = new_node;
         } else {
-            // Else traverse till the last node 
-            // and insert the new_node there 
+          
             LinkedNode last = getHead();
 
             while (last.getNext() != null) {
                 last = last.getNext();
             }
-            // Insert the new_node at last node 
+          
             last.setNext(new_node);
         }
         Count++;
@@ -93,7 +90,7 @@ public class LinkedList<T> implements Iterable<T> {
     public boolean removeNode(T Objeto) {
 
         boolean isRemoved = false;
-        //Não há nada pa remover
+     
 
         if (this.Head == null) {
             System.out.println("There's nothing to remove");

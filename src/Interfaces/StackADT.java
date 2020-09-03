@@ -23,11 +23,6 @@ public interface StackADT<T> {
      * @throws Exceptions.EmptyCollectionException  Exception
  */
  public T pop() throws EmptyCollectionException;
- /** Returns without removing the top element of this stack.
- * @return T element on top of the stack
-     * @throws Exceptions.EmptyCollectionException  Exception 
- */
- public T peek()throws EmptyCollectionException;
  /** Returns true if this stack contains no elements.
  * @return boolean whether or not this stack is empty
  */
