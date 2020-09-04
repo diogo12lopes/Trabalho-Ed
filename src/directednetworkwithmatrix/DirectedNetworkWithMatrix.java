@@ -340,7 +340,7 @@ public class DirectedNetworkWithMatrix<T> implements NetworkADT<T> {
         } while (index != startIndex);
 
         while (!stack.isEmpty()) {
-            resultList.addToFront(vertices[(stack.pop())]);
+            resultList.addToRear(vertices[(stack.pop())]);
         }
         return resultList.iterator();
     }
